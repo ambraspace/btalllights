@@ -199,33 +199,36 @@ public class Communicator
 		
 		sb.delete(0, sb.length());
 		
-		while (!sb.toString().equals("*#*1##") && !sb.toString().equals("*#*0##"))
+		while ((slovo=cInput.read())!=-1)
 		{
-			sb.delete(0, sb.length());
-			while ((slovo=cInput.read())!=-1) {
-				sb.append((char)slovo);
-				if (sb.toString().endsWith("##"))
+			sb.append((char)slovo);
+			if (sb.toString().endsWith("##"))
+			{
+				logger.info("<-- " + sb.toString());
+				if (sb.toString().equals("*#*1##"))
 				{
-					break;
+					logger.info("Command successfully sent.");
+					cOutput.close();
+					cInput.close();
+					commandSession.close();
+					return true;
+				} else if (sb.toString().equals("*#*0##"))
+				{
+					logger.warning("Command not understood by the server.");
+					cOutput.close();
+					cInput.close();
+					commandSession.close();
+					return false;
 				}
+				sb.delete(0, sb.length());
 			}
-			logger.info("<-- " + sb.toString());
-		}
-		
-		if (sb.toString().equals("*#*0##"))
-		{
-			logger.warning("Command not understood by the server.");
-			cOutput.close();
-			cInput.close();
-			commandSession.close();
-			return false;
 		}
 
-		logger.info("Command sent.");
+		logger.warning("Session ended prematurelly!");
 		cOutput.close();
 		cInput.close();
 		commandSession.close();
-		return true;
+		return false;
 		
 	}
 	
