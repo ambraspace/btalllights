@@ -1,7 +1,12 @@
 package com.ambraspace.btalllights;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,6 +20,10 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.ambraspace.btalllights.exceptions.PropertiesCreationException;
 
@@ -245,6 +254,83 @@ public class Maintainer
 		new Thread(check).start();
 
 		// open port for command reception
+		
+		class RequestProcessor implements Runnable {
+
+			private Socket rq = null;
+			BufferedReader input = null;
+			PrintWriter output = null;
+			
+			public RequestProcessor(Socket rq) throws IOException
+			{
+				this.rq = rq;
+				input = new BufferedReader(new InputStreamReader(this.rq.getInputStream()));
+				output = new PrintWriter(this.rq.getOutputStream(), true);
+			}
+			
+			@Override
+			public void run()
+			{
+				String line = null;
+				try
+				{
+					line=input.readLine();
+					output.println(processRequest(line));
+					output.close();
+					input.close();
+					rq.close();
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
+			private String processRequest(String rq)
+			{
+				logger.info("Request received: " + rq);
+				JSONArray retVal = new JSONArray();
+				try 
+				{
+					switch (rq)
+					{
+						case "LIST":
+							JSONObject item = null;
+							for (Switch s:devices)
+							{
+								item = new JSONObject();
+								item.put("if", s.getIface());
+								item.put("a", s.getA());
+								item.put("pl", s.getPl());
+								item.put("name", s.getName());
+								item.put("status", s.getStatus());
+								if (s instanceof Dimmer)
+								{
+									item.put("intensity", ((Dimmer)s).getIntensity());
+								}
+								retVal.put(item);
+							}
+							break;
+						default:
+					}
+				} catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+				return retVal.toString();
+			}
+			
+		}
+		
+		logger.info("Starting service on port " + options.servicePort + "...");
+		ServerSocket server = new ServerSocket(options.servicePort);
+		Socket request = null;
+		while (!server.isClosed())
+		{
+			request = server.accept();
+			new Thread(new RequestProcessor(request)).start();
+			
+		}
+		server.close();
 		
 	}
 	

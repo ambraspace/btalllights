@@ -22,6 +22,7 @@ public class MaintainerOptions
 	private static final String OPTION_DEBUG = "debug";
 	private static final String OPTION_DELAY_AFTER_BROADCAST = "delayAfterBroadcast";
 	private static final String OPTION_DELAY_AFTER_UNICAST = "delayAfterUnicast";
+	private static final String OPTION_SERVICE_PORT = "servicePort";
 
 	
 	private final File propertiesFile;
@@ -34,6 +35,7 @@ public class MaintainerOptions
 	boolean debug = true;
 	int delayAfterBroadcast = 10;
 	int delayAfterUnicast = 6;
+	int servicePort = 12345;
 	
 	
 	/**
@@ -210,7 +212,28 @@ public class MaintainerOptions
 	public File getPropertiesFile() {
 		return propertiesFile;
 	}
+
 	
+	public int getServicePort()
+	{
+		return servicePort;
+	}
+
+
+	
+	private void setServicePort(int servicePort)
+	{
+		int oldValue = this.servicePort;
+		if (servicePort<0 || servicePort>65535) {
+			throw new RuntimeException("Port value not allowed.");
+		}
+		this.servicePort = servicePort;
+		if (oldValue!=this.servicePort)
+		{
+			saveOptions();
+		}
+	}
+
 
 	private void loadOptions() throws IOException {
 
@@ -249,6 +272,8 @@ public class MaintainerOptions
 				properties.getProperty(OPTION_DELAY_AFTER_BROADCAST, "" + this.delayAfterBroadcast));
 		newProps.setProperty(OPTION_DELAY_AFTER_UNICAST,
 				properties.getProperty(OPTION_DELAY_AFTER_UNICAST, "" + this.delayAfterUnicast));
+		newProps.setProperty(OPTION_SERVICE_PORT,
+				properties.getProperty(OPTION_SERVICE_PORT, "" + this.servicePort));
 		
 		
 		/*
@@ -263,7 +288,8 @@ public class MaintainerOptions
 		this.debug = Boolean.parseBoolean(newProps.getProperty(OPTION_DEBUG));
 		this.delayAfterBroadcast = Integer.parseInt(newProps.getProperty(OPTION_DELAY_AFTER_BROADCAST));
 		this.delayAfterUnicast = Integer.parseInt(newProps.getProperty(OPTION_DELAY_AFTER_UNICAST));
-
+		this.servicePort = Integer.parseInt(newProps.getProperty(OPTION_SERVICE_PORT));
+		
 		
 		/*
 		 * Now set private fields from properties (it's important for the values
@@ -276,6 +302,7 @@ public class MaintainerOptions
 		this.setDebug(Boolean.parseBoolean(newProps.getProperty(OPTION_DEBUG)));
 		this.setDelayAfterBroadcast(Integer.parseInt(newProps.getProperty(OPTION_DELAY_AFTER_BROADCAST)));
 		this.setDelayAfterUnicast(Integer.parseInt(newProps.getProperty(OPTION_DELAY_AFTER_UNICAST)));
+		this.setServicePort(Integer.parseInt(newProps.getProperty(OPTION_SERVICE_PORT)));
 
 		
 		/*
@@ -289,6 +316,7 @@ public class MaintainerOptions
 		newProps.setProperty(OPTION_DEBUG, "" + this.debug);
 		newProps.setProperty(OPTION_DELAY_AFTER_BROADCAST, "" + this.delayAfterBroadcast);
 		newProps.setProperty(OPTION_DELAY_AFTER_UNICAST, "" + this.delayAfterUnicast);
+		newProps.setProperty(OPTION_SERVICE_PORT, "" + this.servicePort);
 		
 		/*
 		 * Avoid unnecessary write.
@@ -313,6 +341,7 @@ public class MaintainerOptions
 		properties.setProperty(OPTION_DEBUG, "" + this.isDebug());
 		properties.setProperty(OPTION_DELAY_AFTER_BROADCAST, "" + this.delayAfterBroadcast);
 		properties.setProperty(OPTION_DELAY_AFTER_UNICAST, "" + this.delayAfterUnicast);
+		properties.setProperty(OPTION_SERVICE_PORT, "" + this.servicePort);
 		
 		try (FileOutputStream fout = new FileOutputStream(propertiesFile);) {
 			properties.store(fout, null);
