@@ -164,7 +164,7 @@ public class Switch implements Comparable<Switch>
 	{
 		StringBuilder retVal = new StringBuilder();
 		retVal.append("*#1*");
-		if ((a>=1 && a<=9) && (pl>=1 && pl<=9))
+		if ((a>=0 && a<=9) && (pl>=1 && pl<=9))
 		{
 			retVal.append(""+a+pl);
 		} else
