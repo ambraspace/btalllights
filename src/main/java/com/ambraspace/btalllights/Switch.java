@@ -178,4 +178,24 @@ public class Switch implements Comparable<Switch>
 	}
 	
 	
+	public String whatCommand(int what)
+	{
+		if (what!=0 && what!=1)
+		{
+			throw new RuntimeException("What value not allowed!");
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("*1*" + what + "*");
+		if ((a>=0 && a<=9) && (pl>=0 && pl<=9))
+		{
+			sb.append("" + a + pl);
+		} else 
+		{
+			sb.append(String.format("%02d%02d", a, pl));
+		}
+		sb.append("#4#" + String.format("%02d", iface) + "##");
+		return sb.toString();
+	}
+	
+	
 }

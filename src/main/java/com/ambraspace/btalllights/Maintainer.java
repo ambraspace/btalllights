@@ -311,6 +311,29 @@ public class Maintainer
 							}
 							break;
 						default:
+							JSONObject command = new JSONObject(rq);
+							int iface, a, pl, what;
+							iface = command.getInt("iface");
+							a = command.getInt("a");
+							pl = command.getInt("pl");
+							what = command.getInt("what");
+							Switch s = new Switch("DUMMY", iface, a, pl);
+							SortedSet<Switch> subSet = devices.tailSet(s);
+							if (subSet.size()==0)
+							{
+								break;
+							}
+							Switch device = subSet.first();
+							try
+							{
+								communicator.sendMessage(device.whatCommand(what));
+							} catch (UnknownHostException e)
+							{
+								e.printStackTrace();
+							} catch (IOException e)
+							{
+								e.printStackTrace();
+							}
 					}
 				} catch (JSONException e)
 				{
