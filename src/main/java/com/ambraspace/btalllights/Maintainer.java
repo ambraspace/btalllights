@@ -4,10 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -259,13 +260,13 @@ public class Maintainer
 
 			private Socket rq = null;
 			BufferedReader input = null;
-			PrintWriter output = null;
+			OutputStream output = null;
 			
 			public RequestProcessor(Socket rq) throws IOException
 			{
 				this.rq = rq;
 				input = new BufferedReader(new InputStreamReader(this.rq.getInputStream()));
-				output = new PrintWriter(this.rq.getOutputStream(), true);
+				output = this.rq.getOutputStream();
 			}
 			
 			@Override
@@ -275,7 +276,8 @@ public class Maintainer
 				try
 				{
 					line=input.readLine();
-					output.println(processRequest(line));
+					String reply = processRequest(line);
+					output.write(reply.getBytes(Charset.forName("UTF-8")));
 					output.close();
 					input.close();
 					rq.close();
