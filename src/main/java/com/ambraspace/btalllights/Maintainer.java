@@ -14,7 +14,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.InputMismatchException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -117,7 +119,7 @@ public class Maintainer
 				public void receiveMessage(String message)
 				{
 					String tmp;
-					if (message.startsWith("*") && message.endsWith("##"))
+					if (message.length()>3 && message.startsWith("*") && message.endsWith("##"))
 					{
 						tmp = message.substring(1, message.length() - 2);
 					} else
@@ -129,9 +131,24 @@ public class Maintainer
 					sc1.useDelimiter("\\*");
 					int who, what;
 					String where;
-					who = sc1.nextInt();
-					what = sc1.nextInt();
-					where = sc1.next();
+					try
+					{
+						who = sc1.nextInt();
+						what = sc1.nextInt();
+						where = sc1.next();
+					} catch (InputMismatchException e)
+					{
+						e.printStackTrace();
+						sc1.close();
+						logger.warning("Unrecognized reply: " + message);
+						return;
+					} catch (NoSuchElementException e)
+					{
+						e.printStackTrace();
+						sc1.close();
+						logger.warning("Unrecognized reply: " + message);
+						return;
+					}
 					sc1.close();
 					int four;
 					if ((four=where.indexOf("#4#"))<2)
@@ -140,7 +157,16 @@ public class Maintainer
 						return;
 					}
 					String address = where.substring(0, four);
-					int iface = Integer.parseInt(where.substring(four+3));
+					int iface;
+					try
+					{
+						iface = Integer.parseInt(where.substring(four+3));
+					} catch (NumberFormatException e)
+					{
+						e.printStackTrace();
+						logger.warning("Unrecognized reply: " + message);
+						return;
+					}
 					int a, pl;
 					if (address.length() == 2)
 					{
@@ -329,6 +355,7 @@ public class Maintainer
 							try
 							{
 								communicator.sendMessage(device.whatCommand(what));
+								retVal.put("OK");
 							} catch (UnknownHostException e)
 							{
 								e.printStackTrace();
