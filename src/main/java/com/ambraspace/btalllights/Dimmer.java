@@ -36,7 +36,7 @@ public class Dimmer extends Switch
 	@Override
 	public String whatCommand(int what)
 	{
-		if (what<=0 || what>=10)
+		if (what!=0 && what!=1 && what!=30 && what!=31)
 		{
 			throw new RuntimeException("What value not allowed!");
 		}

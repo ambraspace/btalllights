@@ -341,10 +341,32 @@ public class Maintainer
 						default:
 							JSONObject command = new JSONObject(rq);
 							int iface, a, pl, what;
+							String action = null;
 							iface = command.getInt("iface");
 							a = command.getInt("a");
 							pl = command.getInt("pl");
-							what = command.getInt("what");
+							action = command.getString("action");
+							switch (action)
+							{
+								case "ON":
+									what = 1;
+									break;
+
+								case "OFF":
+									what = 0;
+									break;
+
+								case "UP":
+									what = 30;
+									break;
+
+								case "DOWN":
+									what = 31;
+									break;
+
+								default:
+									return null;
+							}
 							Switch s = new Switch("DUMMY", iface, a, pl);
 							SortedSet<Switch> subSet = devices.tailSet(s);
 							if (subSet.size()==0)
