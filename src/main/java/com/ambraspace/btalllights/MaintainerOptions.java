@@ -5,15 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import com.ambraspace.btalllights.exceptions.PropertiesCreationException;
 
 
 public class MaintainerOptions
 {
-	
-	public static final Logger logger = Logger.getLogger("MaintainerOptions");
 	
 	private static final String OPTION_SERVER_ADDRESS = "serverAddress";
 	private static final String OPTION_SERVER_PORT = "serverPort";

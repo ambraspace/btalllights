@@ -33,7 +33,7 @@ import com.ambraspace.btalllights.exceptions.PropertiesCreationException;
 public class Maintainer
 {
 	
-	private static final Logger logger = Logger.getLogger("Maintainer");
+	public static final Logger logger = Logger.getLogger("Maintainer");
 	private SortedSet<Switch> devices = new TreeSet<Switch>();
 	private MaintainerOptions options;
 	
@@ -60,7 +60,7 @@ public class Maintainer
 	      Statement statement = connection.createStatement();
 	      statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-	      logger.info("Connected to the database. Collecting devices' info.");
+	      logger.fine("Connected to the database. Collecting devices' info.");
 	      
 	      ResultSet rs = statement.executeQuery("select mode, address, interface, title from light");
 	      Switch d = null;
@@ -107,7 +107,7 @@ public class Maintainer
 	      }
 	    }
 	    
-	    logger.info("" + devices.size() + " device(s) collected.");
+	    logger.fine("" + devices.size() + " device(s) collected.");
 	    
 		// establish connection to the Bticino server
 	    
@@ -140,20 +140,20 @@ public class Maintainer
 					{
 						e.printStackTrace();
 						sc1.close();
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					} catch (NoSuchElementException e)
 					{
 						e.printStackTrace();
 						sc1.close();
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					}
 					sc1.close();
 					int four;
 					if ((four=where.indexOf("#4#"))<2)
 					{
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					}
 					String address = where.substring(0, four);
@@ -164,7 +164,7 @@ public class Maintainer
 					} catch (NumberFormatException e)
 					{
 						e.printStackTrace();
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					}
 					int a, pl;
@@ -178,18 +178,18 @@ public class Maintainer
 						pl=Integer.parseInt(address.substring(2,4));
 					} else
 					{
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					}
 					
 					if (who!=1)
 					{
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					}
 					if (what<0 || what>10)
 					{
-						logger.warning("Unrecognized reply: " + message);
+						logger.fine("Unrecognized reply: " + message);
 						return;
 					}
 					
@@ -395,7 +395,7 @@ public class Maintainer
 			
 		}
 		
-		logger.info("Starting service on port " + options.servicePort + "...");
+		logger.fine("Starting service on port " + options.servicePort + "...");
 		ServerSocket server = new ServerSocket(options.servicePort);
 		Socket request = null;
 		while (!server.isClosed())
@@ -427,16 +427,13 @@ public class Maintainer
 			return;
 		}
 		
+		Logger.getGlobal().getParent().getHandlers()[0].setLevel(Level.FINE);
 		if (options.isDebug())
 		{
 			logger.setLevel(Level.ALL);
-			Communicator.logger.setLevel(Level.ALL);
-			MaintainerOptions.logger.setLevel(Level.ALL);
 		} else
 		{
-			logger.setLevel(Level.WARNING);
-			Communicator.logger.setLevel(Level.WARNING);
-			MaintainerOptions.logger.setLevel(Level.WARNING);
+			logger.setLevel(Level.INFO);
 		}
 		
 		try

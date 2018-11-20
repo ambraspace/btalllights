@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class Communicator
 {
 	
-	public static final Logger logger = Logger.getLogger("Communicator");
+	public static final Logger logger = Maintainer.logger;
 	
 	private String serverAddress;
 	private int serverPort;
@@ -38,7 +38,7 @@ public class Communicator
 	private void connect() throws UnknownHostException, IOException
 	{
 
-		logger.info("Connecting to " + this.serverAddress);
+		logger.fine("Connecting to " + this.serverAddress);
 		monitorSession = new Socket(this.serverAddress, this.serverPort);
 		mInput = new BufferedReader(new InputStreamReader(monitorSession.getInputStream()));
 		mOutput = new PrintWriter(monitorSession.getOutputStream());
@@ -63,8 +63,8 @@ public class Communicator
 			throw new IOException();
 		}
 		
-		logger.info("<-- *#*1##");
-		logger.info("--> *99*1##");
+		logger.fine("<-- *#*1##");
+		logger.fine("--> *99*1##");
 		mOutput.print("*99*1##");
 		mOutput.flush();
 		
@@ -87,7 +87,7 @@ public class Communicator
 			throw new IOException();
 		}
 
-		logger.info("<-- *#*1##");
+		logger.fine("<-- *#*1##");
 
 	}
 	
@@ -129,7 +129,7 @@ public class Communicator
 
 		new Thread(listener).start();
 		
-		logger.info("Monitor session started.");
+		logger.fine("Monitor session started.");
 		
 	}
 	
@@ -137,13 +137,13 @@ public class Communicator
 	public boolean sendMessage(String message) throws UnknownHostException, IOException
 	{
 		
-		logger.info("Trying to send command: " + message);
+		logger.fine("Trying to send command: " + message);
 		
 		Socket commandSession = null;
 		BufferedReader cInput = null;
 		PrintWriter cOutput = null;
 		
-		logger.info("Starting new command session.");
+		logger.fine("Starting new command session.");
 		commandSession = new Socket(this.serverAddress, this.serverPort);
 		cInput = new BufferedReader(new InputStreamReader(commandSession.getInputStream()));
 		cOutput = new PrintWriter(commandSession.getOutputStream());
@@ -168,8 +168,8 @@ public class Communicator
 			return false;
 		}
 		
-		logger.info("<-- *#*1##");
-		logger.info("--> *99*0##");
+		logger.fine("<-- *#*1##");
+		logger.fine("--> *99*0##");
 		cOutput.print("*99*0##");
 		cOutput.flush();
 		
@@ -192,7 +192,7 @@ public class Communicator
 			return false;
 		}
 
-		logger.info("<-- *#*1##");
+		logger.fine("<-- *#*1##");
 		logger.info("--> " + message);
 		cOutput.print(message);
 		cOutput.flush();
@@ -207,7 +207,7 @@ public class Communicator
 				logger.info("<-- " + sb.toString());
 				if (sb.toString().equals("*#*1##"))
 				{
-					logger.info("Command successfully sent.");
+					logger.fine("Command successfully sent.");
 					cOutput.close();
 					cInput.close();
 					commandSession.close();
